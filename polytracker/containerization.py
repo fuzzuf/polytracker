@@ -84,7 +84,7 @@ class DockerOutOfDateError(RuntimeError):
 
 
 class DockerContainer:
-    def __init__(self, image_name: str = "trailofbits/polytracker", tag: Optional[str] = None):
+    def __init__(self, image_name: str = "ricsec/polytracker", tag: Optional[str] = None):
         self.image_name: str = image_name
         if tag is None:
             self.tag: str = polytracker_version()
@@ -249,15 +249,15 @@ class DockerContainer:
             )
         # use the low-level APIClient so we can get streaming build status
         cli = docker.APIClient()
-        with tqdm(desc="Archiving the build directory", unit=" steps", leave=False) as t:
+        with tqdm(desc="(ricsec) Archiving the build directory", unit=" steps", leave=False) as t:
             last_line = 0
             last_step = None
             for raw_line in cli.build(
                 path=str(self.dockerfile.dir()),
-                rm=True,
+                rm=False, # NOTE: Do not remove intermidiate containter images
                 tag=self.name,
                 nocache=nocache,
-                forcerm=True,
+                forcerm=False, # NOTE: Do not remove intermidiate containter images
             ):
                 t.desc = f"Building {self.name}"
                 for line in raw_line.split(b"\n"):
@@ -302,7 +302,7 @@ class DockerCommand(Command):
 
     def __init_arguments__(self, parser: ArgumentParser):
         self.parser = parser
-        self.container = DockerContainer()
+        self.container = DockerContainer() # NOTE: コマンドラインからコンテナの名前は変えられないか。残念
 
     def run(self, args):
         self.parser.print_help()
@@ -396,8 +396,8 @@ class DockerRebuild(DockerSubcommand):
         parser.add_argument(
             "--no-tag-latest",
             action="store_true",
-            help=f"by default, the rebuilt image will be tagged as both trailofbits/polytracker:{polytracker_version()}"
-            " as well as trailofbits/polytracker:latest. This option will only tag it by the version and not"
+            help=f"by default, the rebuilt image will be tagged as both ricsec/polytracker:{polytracker_version()}"
+            " as well as ricsec/polytracker:latest. This option will only tag it by the version and not"
             " tag it as :latest.",
         )
 
@@ -407,14 +407,9 @@ class DockerRebuild(DockerSubcommand):
                 """It looks like PolyTracker was installed from PyPI rather than from source.
 Either reinstall PolyTracker from source like this:
 
-    $ git clone https://github.com/trailofbits/polytracker
+    $ git clone https://github.com/RICSecLab/polytracker.git
     $ cd polytracker
     $ pip3 install -e .
-
-or download the latest prebuilt Docker image for your preexisting PolyTracker install from DockerHub by running:
-
-    $ polytracker docker pull
-
 """
             )
             return 1
@@ -479,7 +474,7 @@ class DockerRun(DockerSubcommand):
                 break
             elif option.lower() == "y" or option == "":
                 sys.stderr.write(
-                    f"By default, the new image will be tagged as trailofbits/polytracker:{polytracker_version()}."
+                    f"By default, the new image will be tagged as ricsec/polytracker:{polytracker_version()}."
                 )
                 while True:
                     sys.stderr.write("\nWould you like to also tag it as trailofbits/polytracker:latest? [Yn] ")
@@ -491,6 +486,6 @@ class DockerRun(DockerSubcommand):
                     elif option.lower() == "y" or option == "":
                         tag_as_latest = True
                         break
-                container.rebuild(nocache=True, tag_as_latest=tag_as_latest)
+                container.rebuild(nocache=False, tag_as_latest=tag_as_latest)
                 break
         return container.run(*args, interactive=interactive, check_if_docker_out_of_date=False, **kwargs)

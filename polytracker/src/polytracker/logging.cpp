@@ -43,6 +43,16 @@ void logCompare(const dfsan_label label, const function_id_t findex,
   storeTaintAccess(output_db, label, input_id, ByteAccessType::CMP_ACCESS);
 }
 
+void logComparedValue(const uint64_t value, const function_id_t findex,
+                const block_id_t bindex) {
+  storeReferencedValue(output_db, value, ByteAccessType::CMP_ACCESS);
+}
+
+void logMemoryAccessOperands(const dfsan_label label, const function_id_t findex,
+                const block_id_t bindex) {
+  storeTaintAccess(output_db, label, input_id, ByteAccessType::MEMORY_ACCESS_OPERAND_ACCESS);
+}
+
 void logOperation(const dfsan_label label, const function_id_t findex,
                   const block_id_t bindex) {
   storeTaintAccess(output_db, label, input_id, ByteAccessType::INPUT_ACCESS);

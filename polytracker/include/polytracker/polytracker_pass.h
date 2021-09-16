@@ -37,6 +37,10 @@ struct PolytrackerPass : public llvm::ModulePass,
   // entering a func
   void visitCallInst(llvm::CallInst &ci);
   void visitReturnInst(llvm::ReturnInst &RI);
+  // NOTE: /usr/local/include/llvm/IR/InstVisitor.h を見た感じ、
+  //       visit<IRのクラス名> じゃないと反応してくれなそう。
+  void visitGetElementPtrInst(llvm::GetElementPtrInst &I);
+
   const std::pair<llvm::Value *, llvm::Value *>
   getIndicies(llvm::Instruction *);
 
@@ -52,6 +56,7 @@ struct PolytrackerPass : public llvm::ModulePass,
   llvm::FunctionCallee bb_entry_log;
   llvm::FunctionCallee taint_op_log;
   llvm::FunctionCallee taint_cmp_log;
+  llvm::FunctionCallee taint_memory_access_operands;
   llvm::FunctionCallee dfsan_get_label;
 
   std::unordered_map<llvm::BasicBlock *, uint64_t> block_global_map;

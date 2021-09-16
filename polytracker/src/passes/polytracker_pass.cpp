@@ -98,6 +98,35 @@ void PolytrackerPass::visitBinaryOperator(llvm::BinaryOperator &Op) {
   logOp(&Op, taint_op_log);
 }
 
+void PolytrackerPass::visitGetElementPtrInst(llvm::GetElementPtrInst &inst) {
+  std::cout << "[*] visitGetElementPtrInst" << std::endl; // DEBUG:
+  if (inst.getNumOperands() < 2) {
+    return;
+  }
+
+  llvm::IRBuilder<> IRB(inst.getNextNode());
+  if (block_global_map.find(inst.getParent()) == block_global_map.end()) {
+    std::cerr << "Error! cmp parent block not in block_map" << std::endl;
+    exit(1);
+  }
+  auto func_block_index = getIndicies(&inst);
+
+  // NOTE: 仕様では複数のインデックスがありえる
+  //       ref. https://llvm.org/docs/LangRef.html#getelementptr-instruction
+  for (int i = 1; i < inst.getNumOperands(); i += 1) {
+    // llvm::Value *ptrval = 
+    //   IRB.CreateZExtOrTrunc(inst.getOperand(0), shadow_type); // ポインタを強制キャスト→できません llvm::Value *llvm::IRBuilderBase::CreateZExtOrTrunc(llvm::Value *, llvm::Type *, const llvm::Twine &): Assertion `V->getType()->isIntOrIntVectorTy() && DestTy->isIntOrIntVectorTy() && "Can only zero extend/truncate integers!"'
+
+    llvm::Value *idx = 
+      IRB.CreateZExtOrTrunc(inst.getOperand(i), shadow_type); // 符号付きのほうがよい？
+
+    CallInst *Call =
+        IRB.CreateCall(taint_memory_access_operands, 
+          {idx /* 嘘つきすまん */, idx, func_block_index.first,
+                                  func_block_index.second});
+  }
+}
+
 void PolytrackerPass::visitReturnInst(llvm::ReturnInst &RI) {
   llvm::Instruction *inst = llvm::dyn_cast<llvm::Instruction>(&RI);
   auto func_block_index = getIndicies(inst);
@@ -322,6 +351,8 @@ void PolytrackerPass::initializeTypes(llvm::Module &mod) {
       mod.getOrInsertFunction("__polytracker_log_taint_op", taint_log_fn_ty);
   taint_cmp_log =
       mod.getOrInsertFunction("__polytracker_log_taint_cmp", taint_log_fn_ty);
+  taint_memory_access_operands = 
+      mod.getOrInsertFunction("__polytracker_log_taint_memory_access_operands", taint_log_fn_ty);
 
   // Should pass in func_name and uint32_t function index.
   func_entry_type = llvm::FunctionType::get(

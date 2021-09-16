@@ -13,6 +13,7 @@ extern thread_local FunctionStack function_stack;
 // extern std::atomic_bool done;
 
 extern "C" void __polytracker_log_taint_op(dfsan_label arg1, dfsan_label arg2,
+                                           uint64_t arg1_value, uint64_t arg2_value,
                                            uint32_t findex, uint32_t bindex) {
   //  if (LIKELY(!done)) {
   if (LIKELY(polytracker_trace_func || polytracker_trace)) {
@@ -26,23 +27,30 @@ extern "C" void __polytracker_log_taint_op(dfsan_label arg1, dfsan_label arg2,
   // }
 }
 
+// TODO: なんで argn が uint32_t だったの？
+// その命令の種類くらいは教えてくれもいいじゃん…
 extern "C" void __dfsw___polytracker_log_taint_op(
-    uint32_t arg1, uint32_t arg2, uint32_t findex, uint32_t bindex,
+    uint64_t arg1, uint64_t arg2, uint32_t findex, uint32_t bindex,
     dfsan_label arg1_label, dfsan_label arg2_label, dfsan_label ignore_label1,
     dfsan_label ignore_label2) {
-  __polytracker_log_taint_op(arg1_label, arg2_label, findex, bindex);
+  __polytracker_log_taint_op(arg1_label, arg2_label, arg1, arg2, findex, bindex);
 }
 
-extern "C" void __polytracker_log_taint_cmp(dfsan_label arg1, dfsan_label arg2,
+extern "C" void __polytracker_log_taint_cmp(dfsan_label arg1, dfsan_label arg2, 
+                                            uint64_t arg1_value, uint64_t arg2_value,
                                             uint32_t findex, uint32_t bindex) {
 
   // if (LIKELY(!done)) {
   if (LIKELY(polytracker_trace_func || polytracker_trace)) {
-    if (arg1 != 0) {
+    if (arg1 != 0) { // もしテイントしていたら
       logCompare(arg1, findex, bindex);
+    } else {
+      logComparedValue(arg1_value, findex, bindex);
     }
-    if (arg2 != 0) {
+    if (arg2 != 0) { // もしテイントしていたら
       logCompare(arg2, findex, bindex);
+    } else {
+      logComparedValue(arg2_value, findex, bindex);
     }
   }
   // }
@@ -52,7 +60,26 @@ extern "C" void __dfsw___polytracker_log_taint_cmp(
     uint64_t arg1, uint64_t arg2, uint32_t findex, uint32_t bindex,
     dfsan_label arg1_label, dfsan_label arg2_label, dfsan_label ignore_label1,
     dfsan_label ignore_label2) {
-  __polytracker_log_taint_cmp(arg1_label, arg2_label, findex, bindex);
+  __polytracker_log_taint_cmp(arg1_label, arg2_label, arg1, arg2, findex, bindex);
+}
+
+extern "C" void __polytracker_log_taint_memory_access_operands(dfsan_label ptrval, dfsan_label idx1, 
+                                            uint64_t ptrval_value, uint64_t idx1_value,
+                                            uint32_t findex, uint32_t bindex) {
+
+  if (LIKELY(polytracker_trace_func || polytracker_trace)) {
+    if (idx1 != 0) { // もしテイントしていたら
+      std::cout << "[*] __polytracker_log_taint_memory_access_operands: Tainted!" << std::endl;
+      logMemoryAccessOperands(idx1, findex, bindex);
+    }
+  }
+}
+
+extern "C" void __dfsw___polytracker_log_taint_memory_access_operands(
+    uint64_t ptrval, uint64_t idx1, uint32_t findex, uint32_t bindex,
+    dfsan_label ptrval_label, dfsan_label idx1_label, dfsan_label ignore_label1,
+    dfsan_label ignore_label2) {
+  __polytracker_log_taint_memory_access_operands(ptrval_label, idx1_label, ptrval, idx1, findex, bindex);
 }
 
 extern "C" int __polytracker_log_func_entry(char *fname, uint32_t index,

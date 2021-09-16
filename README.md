@@ -1,3 +1,46 @@
+# 忙しい人のための PolyTracker
+
+## Requiements
+* Docker
+  * ビルド中とトレース中はDockerのデーモンの起動が必要です
+* Python 3.7 以上
+  * Python 3.6 は動きません
+* あと以下コマンドの実行よろしく
+
+```shell
+### 追加のRequirements
+sudo python3.7 -m pip install pytest
+```
+
+## How to build and install
+Dockerのデーモンを起動したあと、
+
+```shell
+### Python系ツールのビルドとインストール
+python3.7 -m pip install -e .
+
+### 計装環境のビルド（内部では docker build するだけ）
+polytracker docker rebuild
+```
+
+### 手元でビルドだけしたいとき
+```shell
+### 事前にLLVMのcxxをビルドしておくこと
+cmake -Bbuild -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCXX_LIB_PATH=$(realpath ../../try-DataFlowSanitizer/llvm-project/build/lib/) .
+cmake --build build # => functional が見つからないと怒られる orz
+```
+
+## How to run
+Dockerのデーモンを起動したあと、
+
+```shell
+### トレース実行
+
+### 正常にトレースが終わるとdbファイルが生成される
+
+```
+
+- - - 
 # PolyTracker
 
 <p align="center">

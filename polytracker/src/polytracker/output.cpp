@@ -75,6 +75,11 @@ const char *insert_taint_access =
     "INSERT INTO accessed_label(event_id, label, access_type, input_id)"
     "VALUES (?, ?, ?, ?);";
 
+sqlite3_stmt *referenced_value_stmt;
+const char *insert_referenced_value = 
+    "INSERT INTO referenced_value(event_id, value, access_type)"
+    "VALUES (?, ?, ?);";
+
 sqlite3_stmt *insert_func_stmt;
 const char *insert_func =
     "INSERT OR IGNORE INTO func (id, name) VALUES (?, ?);";
@@ -328,6 +333,7 @@ void prepSQLInserts(sqlite3 *output_db) {
   sql_prep(output_db, block_event_insert, -1, &block_event_stmt, NULL);
   sql_prep(output_db, insert_forest_node, -1, &insert_node_stmt, NULL);
   sql_prep(output_db, insert_taint_access, -1, &taint_access_stmt, NULL);
+  sql_prep(output_db, insert_referenced_value, -1, &referenced_value_stmt, NULL);
   sql_prep(output_db, insert_func, -1, &insert_func_stmt, NULL);
   sql_prep(output_db, bb_stmt_insert, -1, &bb_stmt, NULL);
   sql_prep(output_db, func_entry_insert, -1, &func_entry_stmt, NULL);
@@ -373,6 +379,16 @@ void storeTaintAccess(sqlite3 *output_db, const dfsan_label &label,
     // sqlite3_finalize(stmt);
   }
 }
+
+void storeReferencedValue(sqlite3 *output_db, 
+                      const uint64_t value,
+                      const ByteAccessType &access_type) {
+  sqlite3_bind_int64(referenced_value_stmt, 1, last_bb_event_id);
+  sqlite3_bind_int64(referenced_value_stmt, 2, value);
+  sqlite3_bind_int(referenced_value_stmt, 3, static_cast<int>(access_type));
+  sql_step(output_db, referenced_value_stmt);
+}
+
 
 void storeBlock(sqlite3 *output_db, const function_id_t findex,
                 const block_id_t bindex, uint8_t btype) {

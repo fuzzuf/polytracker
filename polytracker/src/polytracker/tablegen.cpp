@@ -45,6 +45,15 @@ static constexpr const char *createTaintTable() {
          ");";
 }
 
+static constexpr const char *createReferencedValueTable() {
+  return "CREATE TABLE IF NOT EXISTS referenced_value ("
+         "  refference_id INTEGER PRIMARY KEY,"
+         "  event_id BIGINT,"
+         "  value BIGINT,"
+         "  access_type TINYINT"
+         ");";
+}
+
 static constexpr const char *createPolytrackerTable() {
   return "CREATE TABLE IF NOT EXISTS polytracker( "
          "  store_key TEXT,"
@@ -163,6 +172,7 @@ void createDBTables(sqlite3 *output_db) {
       // std::string(createBlockInstanceTable()) +
       // //std::string(createCallTable()) +
       /*std::string(createRetTable()) +*/ std::string(createTaintTable()) +
+      std::string(createReferencedValueTable()) + 
       std::string(createPolytrackerTable()) +
       std::string(createCanonicalTable()) + std::string(createChunksTable()) +
       std::string(createCFGTable()) + std::string(createTaintForestTable()) +

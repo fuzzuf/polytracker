@@ -11,6 +11,10 @@
 
 void logCompare(const dfsan_label label, const function_id_t findex,
                 const block_id_t bindex);
+void logComparedValue(const uint64_t value, const function_id_t findex,
+                const block_id_t bindex);
+void logMemoryAccessOperands(const dfsan_label label, const function_id_t findex,
+                const block_id_t bindex);
 void logOperation(const dfsan_label label, const function_id_t findex,
                   const block_id_t bindex);
 int logFunctionEntry(const char *fname, const function_id_t func_id);

@@ -16,7 +16,8 @@ enum class ByteAccessType : uint8_t {
   UNKNOWN_ACCESS = 0,
   INPUT_ACCESS = 1,
   CMP_ACCESS = 2,
-  READ_ACCESS = 4
+  READ_ACCESS = 4,
+  MEMORY_ACCESS_OPERAND_ACCESS = 5,
 };
 
 enum EventType : uint8_t {
@@ -37,6 +38,9 @@ input_id_t storeNewInput(sqlite3 *output_db, const std::string &filename,
 void sql_exec(sqlite3 *output_db, const char *cmd);
 void storeTaintAccess(sqlite3 *output_db, const dfsan_label &label,
                       const input_id_t &input_id,
+                      const ByteAccessType &access_type);
+void storeReferencedValue(sqlite3 *output_db, 
+                      const uint64_t value,
                       const ByteAccessType &access_type);
 
 void storeFunc(sqlite3 *output_db, const char *fname,
