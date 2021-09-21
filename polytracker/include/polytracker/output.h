@@ -17,7 +17,7 @@ enum class ByteAccessType : uint8_t {
   INPUT_ACCESS = 1,
   CMP_ACCESS = 2,
   READ_ACCESS = 4,
-  MEMORY_ACCESS_OPERAND_ACCESS = 5,
+  MEMORY_ACCESS_OPERAND_ACCESS = 8,
 };
 
 enum EventType : uint8_t {

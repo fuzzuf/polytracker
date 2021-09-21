@@ -99,7 +99,6 @@ void PolytrackerPass::visitBinaryOperator(llvm::BinaryOperator &Op) {
 }
 
 void PolytrackerPass::visitGetElementPtrInst(llvm::GetElementPtrInst &inst) {
-  std::cout << "[*] visitGetElementPtrInst" << std::endl; // DEBUG:
   if (inst.getNumOperands() < 2) {
     return;
   }

@@ -47,7 +47,7 @@ static constexpr const char *createTaintTable() {
 
 static constexpr const char *createReferencedValueTable() {
   return "CREATE TABLE IF NOT EXISTS referenced_value ("
-         "  refference_id INTEGER PRIMARY KEY,"
+         "  reference_id INTEGER PRIMARY KEY,"
          "  event_id BIGINT,"
          "  value BIGINT,"
          "  access_type TINYINT"

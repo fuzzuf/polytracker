@@ -69,7 +69,6 @@ extern "C" void __polytracker_log_taint_memory_access_operands(dfsan_label ptrva
 
   if (LIKELY(polytracker_trace_func || polytracker_trace)) {
     if (idx1 != 0) { // もしテイントしていたら
-      std::cout << "[*] __polytracker_log_taint_memory_access_operands: Tainted!" << std::endl;
       logMemoryAccessOperands(idx1, findex, bindex);
     }
   }

@@ -433,7 +433,7 @@ class DockerRun(DockerSubcommand):
         )
 
     def run(self, args):
-        return DockerRun.run_on(self.container, args.ARGS, notty=args.notty)
+        return DockerRun.run_on(self.container, args.ARGS, notty=args.notty, env={"CC": "polybuild", "LD": "/usr/bin/ld"})
 
     @staticmethod
     @PolyTrackerREPL.register("docker_run", discardable=True)

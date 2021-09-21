@@ -47,6 +47,7 @@ from .tracing import (
     TraceEvent,
     TaintOutput,
     TaintedChunk,
+    ReferencedValue,
 )
 
 Base = declarative_base()
@@ -58,6 +59,9 @@ class EventType(IntEnum):
     BLOCK_ENTER = 2
     CALL_UNINST = 3
     CALL_INDIRECT = 4
+
+    def __repr__(self):
+        return self.name
 
 
 class EdgeType(IntEnum):
@@ -267,6 +271,9 @@ class DBTaintAccess(Base, TaintAccess):  # type: ignore
     def taints(self) -> Taints:
         return DBTaintForestNode.taints((self.taint_forest_node,))
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(access_id={self.access_id}, event={self.event!r}, label={self.label}, access_type={ByteAccessType(self.access_type)!r})"
+
 
 class DBTraceEvent(Base, TraceEvent):  # type: ignore
     __tablename__ = "events"
@@ -405,6 +412,8 @@ class DBTraceEvent(Base, TraceEvent):  # type: ignore
     def taints(self) -> Taints:
         return DBTaintForestNode.taints((access.taint_forest_node for access in self.accessed_labels))
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(event_id={self.event_id}, event_type={EventType(self.event_type)!r}, block_gid={self.block_gid}, input_id={self.input_id}, thread_id={self.thread_id}, basic_block={self.basic_block})"
 
 class BlockEntries(Base):  # type: ignore
     __tablename__ = "block_entries"
@@ -479,6 +488,12 @@ class DBBasicBlockEntry(DBTraceEvent, BasicBlockEntry):  # type: ignore
         except NoResultFound:
             return None
 
+    def __repr__(self):
+        # return f"DBBasicBlockEntry(DBTraceEvent(event_id={self.event_id}, event_type={EventType(self.event_type)!r}, block_gid={self.block_gid}, input_id={self.input_id}, thread_id={self.thread_id}))"
+        return f"DBBasicBlockEntry(DBTraceEvent(event_id={self.event_id}))"
+
+    def __str__(self):
+        return self.__repr__()
 
 class FunctionEntries(Base):  # type: ignore
     __tablename__ = "func_entries"
@@ -826,6 +841,10 @@ class DBProgramTrace(ProgramTrace):
     def inputs(self) -> Iterable[Input]:
         return self.session.query(DBInput)
 
+    @property
+    def referenced_values(self) -> Iterable[ReferencedValue]:
+        return self.session.query(DBReferencedValue).all()
+
     def __getitem__(self, uid: int) -> TraceEvent:
         raise NotImplementedError()
 
@@ -999,3 +1018,15 @@ class DBTaintForest(TaintForest):
 
     def __len__(self):
         return self.trace.session.query(DBTaintForestNode).count()
+
+
+class DBReferencedValue(Base, ReferencedValue):  # type: ignore
+    __tablename__ = "referenced_value"
+    reference_id = Column(Integer)
+    event_id = Column(BigInteger, ForeignKey("events.event_id"))
+    value = Column(BigInteger)
+    access_type = Column(SmallInteger, SQLEnum(ByteAccessType))
+
+    event = relationship("DBTraceEvent")
+
+    __table_args__ = (PrimaryKeyConstraint("event_id", "value"),)

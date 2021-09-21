@@ -79,7 +79,13 @@ class ByteAccessType(IntFlag):
     INPUT_ACCESS = 1
     CMP_ACCESS = 2
     READ_ACCESS = 4
+    MEMORY_ACCESS_OPERAND_ACCESS = 8
 
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
 
 class TaintedRegion:
     """Base class representing a tainted region of code"""
@@ -755,6 +761,36 @@ class TaintedChunk:
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.start_offset!r}, {self.end_offset!r})"
+
+
+class ReferencedValue:
+    """An abstract class for representing a referenced value while accesses."""
+
+    def __init__(self, reference_id: int, event: TraceEvent, value: int, access_type: ByteAccessType):
+        """Initializes referenced values.
+
+        Args:
+            reference_id: A unique, incrementally assigned identifier for this reference.
+            event: The trace event associated with this reference.
+            value: The value referenced while this access.
+            access_type: The access type of reference.
+        """
+        self.reference_id: int = reference_id
+        self.event: TraceEvent = event
+        self.value: int = value
+        self.access_type: ByteAccessType = access_type
+
+    def __lt__(self, other):
+        return hasattr(other, "reference_id") and self.reference_id < other.reference_id
+
+    def __hash__(self):
+        return self.access_id
+
+    def __eq__(self, other):
+        return isinstance(other, ReferencedValue) and self.reference_id == other.reference_id
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(id={self.reference_id!r}, event={self.event!r}, value={self.value:#x}, access_type={ByteAccessType(self.access_type)!r})"
 
 
 class BasicBlockEntry(ControlFlowEvent):
