@@ -28,7 +28,6 @@ class TaintForestNode:
     def __hash__(self):
         return hash((self.label, self.source))
 
-
 class TaintForest:
     @abstractmethod
     def nodes(self) -> Iterator[TaintForestNode]:

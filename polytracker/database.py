@@ -92,6 +92,8 @@ class DBInput(Base, Input):  # type: ignore
 
     events = relationship("DBTraceEvent", order_by="asc(DBTraceEvent.event_id)")
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(uid={self.uid}, path={self.path}, size={self.size})"
 
 class DBFunction(Base, Function):  # type: ignore
     __tablename__ = "func"
@@ -916,8 +918,11 @@ class DBTaintForestNode(Base, TaintForestNode):  # type: ignore
     def __lt__(self, other):
         return isinstance(other, DBTaintForestNode) and self.label < other.label
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(input_id={self.input_id}, label={self.label}, parent=({self.parent_one_id}, {self.parent_two}), source={self.source!r})"
+
     def __str__(self):
-        return f"I{self.input_id}L{self.label}"
+        return self.__repr__()
 
     def is_canonical(self) -> bool:
         assert (self.parent_one_id > 0 and self.parent_two_id > 0) or (self.parent_one_id == self.parent_two_id == 0)
