@@ -871,6 +871,9 @@ class CanonicalMap(Base):  # type: ignore
 
     source = relationship("DBInput")
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(input_id={self.input_id}, taint_label={self.taint_label}, file_offset={self.file_offset})"
+
 
 class DBTaintedChunk(Base, TaintedChunk):  # type: ignore
     __tablename__ = "tainted_chunks"
