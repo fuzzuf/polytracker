@@ -6,6 +6,7 @@ is in :mod:`polytracker.database`. For example, :class:`polytracker.database.DBP
 
 """
 
+import os
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser, Namespace, REMAINDER
 from collections import defaultdict
@@ -1357,7 +1358,10 @@ class RunTraceCommand(Subcommand[TraceCommand]):
             return_trace=False,
         )
         if retval == 0:
-            print(f"Trace saved to {args.output_db}")
+            if os.path.exists(args.output_db):
+                print(f"[*] Trace saved to {args.output_db}")
+            else:
+                print(f"[!] Return value of RunTraceCommand.run_trace() is 0, but {args.output_db} is not saved")
         return retval
 
 
