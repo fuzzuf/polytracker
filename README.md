@@ -27,6 +27,14 @@ python3.7 -m pip install -e .
 polytracker docker rebuild
 ```
 
+If the build is successful, the Docker image `ricsec/polytracker` will appear.   
+
+```
+$ docker images | grep ricsec/
+ricsec/polytracker                                                                                  3.2.0                                      b997237e2ec4   7 minutes ago   4.49GB
+ricsec/polytracker                                                                                  latest                                     b997237e2ec4   7 minutes ago   4.49GB
+```
+
 - - - 
 # PolyTracker
 
