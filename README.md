@@ -1,7 +1,7 @@
 # Polytracker modified by Ricerca Security, Inc.
 
 ## Requiements
-You must meet following requirements while building polytracker.
+You must meet the following requirements while building polytracker.
 
 * Docker
   * Docker daemon needs to be running during building polytracker
@@ -11,7 +11,7 @@ You must meet following requirements while building polytracker.
 
 ```shell
 ### Install python libraries
-### Please replace `python3.7` with your own environment.
+### Please replace `python3.7` with your environment.
 sudo python3.7 -m pip install pytest
 ```
 
