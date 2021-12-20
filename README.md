@@ -35,6 +35,10 @@ ricsec/polytracker                                                              
 ricsec/polytracker                                                                                  latest                                     b997237e2ec4   7 minutes ago   4.49GB
 ```
 
+Now you can use our modified Polytracker running inside the Docker containers. 
+The rest of the usage is the same as the original Polytracker. 
+Refer to the following documents for details.
+
 - - - 
 # PolyTracker
 
