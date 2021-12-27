@@ -11,8 +11,8 @@ You must meet the following requirements while building polytracker.
 
 ```shell
 ### Install python libraries
-### Please replace `python3.7` with your environment.
-sudo python3.7 -m pip install pytest
+### Please replace `python3.7` with your python
+python3.7 -m pip install pytest
 ```
 
 ## How to build and install
