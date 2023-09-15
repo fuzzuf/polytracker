@@ -97,7 +97,7 @@ setup(
         'networkx~=2.4',
         'Pillow>=7.2.0',
         'prompt_toolkit~=3.0.8',
-        'pygments~=2.7.3',
+        'pygments~=2.15.0',
         'pydot~=1.4.1',
         'sqlalchemy~=1.3.23',
         'tqdm>=4.59.0',  # We need at least this version to get the `delay` option
